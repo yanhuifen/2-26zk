@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        .box {
+            width: 800px;
+            height: 500px;
+            margin: 0 auto;
+            border: 1px solid #e9e;
+        }
+        
+        .ipt {
+            width: 800px;
+            height: 100px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="box">
+
+    </div>
+    <div class="ipt">
+        <input type="text" placeholder="请输入内容"> <button>发布</button>
+    </div>
+    <script>
+        var box = document.querySelector('.box'); //存放内容的盒子
+        var ipt = document.querySelector('.ipt input'); //输入框
+        var btn = document.querySelector('.ipt button'); //发布按钮
+        //点击发布按钮
+        btn.onclick = function() {
+            var main = ipt.value;
+            if (main.trim() == "") {
+                alert('请输入内容');
+            } else {
+                var xml = new XMLHttpRequest;
+                xml.open('get', "/adddata?main" + '=' + main, true);
+                xml.onload = function(res) {
+                    var rs = JSON.parse(res.target.response);
+                    if (rs.code) {
+                        getData(); //添加成功重新渲染页面
+                    }
+                }
+                xml.send();
+            }
+        }
+        getData(); //初始页面的渲染
+
+        //获取数据库内所有的内容
+        function getData() {
+            var xml = new XMLHttpRequest;
+            xml.open('get', "/getdata", true);
+            xml.onload = function(res) {
+                var rs = JSON.parse(res.target.response);
+                render(rs.data);
+            }
+            xml.send();
+        }
+        //渲染数据的函数
+        function render(data) {
+            data.forEach(function(item) {
+                    var p = document.createElement('span'); //动态创建节点
+                    p.innerHTML = item.title; //赋值
+                    p.style.color = `rgba(${random(255,0)},${random(255,0)},${random(255,0)},${random(255,0)})`; //随机颜色
+                    p.style.position = "absolute"; //定位
+                    p.style.marginLeft = random(700, 10) + 'px'; //居左
+                    p.style.marginTop = random(400, 10) + 'px'; //居右
+                    box.appendChild(p); //页面添加节点
+
+                })
+                //5秒后清空弹幕
+            remove()
+        }
+        //随机值的函数
+        function random(max, min) {
+            return Math.floor(Math.random() * (max - min + 1) + min);
+        }
+
+        //清空弹幕
+        function remove() {
+            var span = [...document.querySelectorAll('.box span')]; //获取所有的节点
+            span.forEach(function(item, index) { //定时删除节点
+                setTimeout(function() {
+                    box.removeChild(item);
+                }, index * 2000);
+            })
+
+        }
+    </script>
+</body>
+
+</html>
